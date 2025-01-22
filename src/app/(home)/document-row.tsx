@@ -17,7 +17,7 @@ export const DocumentRow = ({ document }: DocumentRowProps) => {
 
   return (
     <TableRow
-      onClick={() => router.push('/documents/$(document._id)')}
+      onClick={() => router.push(`/documents/${document._id}`)}
       className="cursor-pointer"
     >
       <TableCell className="w-[50px]">
