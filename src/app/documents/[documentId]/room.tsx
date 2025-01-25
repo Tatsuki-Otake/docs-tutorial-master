@@ -11,7 +11,8 @@ import { useParams } from "next/navigation";
 
 import { FullscreenLoader } from "@/components/fullscreen-loader";
 
-import { getUsers } from "./actions";
+import { getUsers, getDocuments } from "./actions";
+import { Id } from "../../../../convex/_generated/dataModel";
 
 type User = { id: string; name: string; avatar: string };
 
@@ -38,25 +39,41 @@ export function Room({ children }: { children: ReactNode }) {
 
   return (
     <LiveblocksProvider
-    throttle={16}
-    authEndpoint="/api/liveblocks-auth"
-    resolveUsers={({ userIds }) => {
-      return userIds.map(
-        (userId) => users.find((user) => user.id === userId) ?? undefined
-      )
-    }}
-    resolveMentionSuggestions={({ text }) => {
-      let filteredUsers = users;
+      throttle={16}
+      authEndpoint={async () => {
+        const endpoint = "/api/liveblocks-auth";
+        const room = params.documentId as string;
 
-      if (text) {
-        filteredUsers = users.filter((user) =>
-          user.name.toLowerCase().includes(text.toLowerCase())
-        );
-      }
+        const response = await fetch(endpoint, {
+          method: "POST",
+          body: JSON.stringify({ room }),
+        });
 
-      return filteredUsers.map((user) => user.id);
-    }}
-    resolveRoomsInfo={() => []}
+        return await response.json();
+      }}
+      resolveUsers={({ userIds }) => {
+        return userIds.map(
+          (userId) => users.find((user) => user.id === userId) ?? undefined
+        )
+      }}
+      resolveMentionSuggestions={({ text }) => {
+        let filteredUsers = users;
+
+        if (text) {
+          filteredUsers = users.filter((user) =>
+            user.name.toLowerCase().includes(text.toLowerCase())
+          );
+        }
+
+        return filteredUsers.map((user) => user.id);
+      }}
+      resolveRoomsInfo={async ({ roomIds }) => {
+        const documents = await getDocuments(roomIds as Id<"documents">[]);
+        return documents.map((document) => ({
+          id: document.id,
+          name: document.name,
+        }));
+      }}
     >
       <RoomProvider id={params.documentId as string}>
         <ClientSideSuspense fallback={<FullscreenLoader label="Room loading..." />}>

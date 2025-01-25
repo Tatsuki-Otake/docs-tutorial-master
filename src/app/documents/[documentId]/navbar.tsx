@@ -37,6 +37,7 @@ import {
 } from "@/components/ui/menubar";
 import { useEditorStore } from "@/store/use-editor-store";
 
+import { Inbox } from "./inbox";
 import { Avatars } from "./avatars";
 import { DocumentInput } from "./document-input";
 
@@ -230,6 +231,7 @@ const onSaveText = () => {
     </div>
     <div className="flex gap-3 items-center pl-6">
       <Avatars />
+      <Inbox />
       <OrganizationSwitcher
         afterCreateOrganizationUrl="/"
         afterLeaveOrganizationUrl="/"
